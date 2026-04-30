@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ꁒꍟꌚꌚꋫꁍꍟ ꍟꁹꏸꆂꁕꍟ꒓</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #0f0f0f;
+        color: #eee;
+        text-align: center;
+        padding: 30px;
+    }
+    textarea {
+        width: 85%;
+        height: 100px;
+        margin: 10px;
+        padding: 10px;
+        font-size: 16px;
+        background: #1a1a1a;
+        color: #fff;
+        border: 1px solid #444;
+    }
+    select {
+        padding: 10px;
+        margin: 10px;
+        font-size: 16px;
+        background: #222;
+        color: white;
+        border: 1px solid #555;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<h2>ꁒꍟꌚꌚꋫꁍꍟ ꍟꁹꏸꆂꁕꍟ꒓</h2>
+
+<textarea id="inputText" placeholder="Type your message..."></textarea><br>
+
+<select id="fontSelect"></select><br>
+
+<textarea id="outputText" placeholder="Encoded message appears here..." readonly></textarea>
+
+<script>
+// Base alphabet
+const base = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+// Fonts
+const fonts = {
+
+    "European":
+    "ÄßÇÐÈ£GHÌJKLMñÖþQR§†ÚVW×¥Zåß¢Ðê£ghïjklmñðþqr§†µvwx¥z",
+
+    "Delta":
+    "ΔβĆĐ€₣ǤĦƗĴҜŁΜŇØƤΩŘŞŦỮVŴЖ¥ŽΔβĆĐ€₣ǤĦƗĴҜŁΜŇØƤΩŘŞŦỮVŴЖ¥Ž",
+
+    "Stroked":
+    "ȺɃȻĐɆFǤĦƗɈꝀŁMNØⱣꝖɌSŦᵾVWXɎƵȺƀȼđɇfǥħɨɉꝁłmnøᵽꝗɍsŧᵾvwxɏƶ",
+
+    "Cyrillic":
+    "АБCДЄFGHЇJКГѪЙѲPФЯ$TЦѴШЖЧЗабcдёfgнїjкгѫпѳpфя$тцѵщжчз",
+
+    "Double Stroke":
+    "₳฿₵ĐɆ₣₲ⱧłJ₭Ⱡ₥₦Ø₱QⱤ₴₮ɄV₩ӾɎⱫ₳฿₵ĐɆ₣₲ⱧłJ₭Ⱡ₥₦Ø₱QⱤ₴₮ɄV₩ӾɎⱫ",
+
+    "Wise":
+    "λßȻɖεʃĢħίĵκιɱɴΘρƣરȘτƲνώΧϓՀλßȻɖεʃĢħίĵκιɱɴΘρƣરȘτƲνώΧϓՀ",
+    
+    "Mysterious":
+    "ค๒ƈɗﻉिﻭɦٱﻝᛕɭ๓กѻρ۹ɼรՇપ۷ฝซץչค๒ƈɗﻉिﻭɦٱﻝᛕɭ๓กѻρ۹ɼรՇપ۷ฝซץչ",
+    
+    "Faux Ethiopian":
+    "ልጌርዕቿቻኗዘጎጋጕረጠክዐየዒዪነፕሁሀሠሸሃጊልጌርዕቿቻኗዘጎጋጕረጠክዐየዒዪነፕሁሀሠሸሃጊ",
+    
+    "Umbrella":
+    "ꍏ♭☾◗€Ϝ❡♄♗♪ϰ↳♔♫⊙ρ☭☈ⓢ☂☋✓ω⌘☿☡ꍏ♭☾◗€Ϝ❡♄♗♪ϰ↳♔♫⊙ρ☭☈ⓢ☂☋✓ω⌘☿☡",
+    
+    "Heiroglyphics":
+    "ԹՅՇԺȝԲԳɧɿʝƙʅʍՌԾρφՐՏԵՄעաՃՎՀԹՅՇԺȝԲԳɧɿʝƙʅʍՌԾρφՐՏԵՄעաՃՎՀ",
+    
+    "Currencies":
+    "AB¢₫€ƒgΩ¡j₭Lm₪Φ₽φ₹$₮ρν₩Χ¥Zab¢₫€ƒgΩ¡j₭Lm₪Φ₽φ₹$₮ρν₩Χ¥z",
+    
+    "Hebrew":
+    "ค๒ς๔єŦﻮђเןкɭ๓ภ๏קợгรՇยשฬאץչค๒ς๔єŦﻮђเןкɭ๓ภ๏קợгรՇยשฬאץչ",
+    
+    "Arabic":
+    "ค๒ς๔єŦﻮђเןкl๓ภ๏קợгรtยשฬץאzค๒ς๔єŦﻮђเןкl๓ภ๏קợгรtยשฬץאz",
+    
+    "Yatagon":
+    "ค๖¢໓ēfງhiวkl๓ຖ໐p๑rŞtนงຟxฯຊค๖¢໓ēfງhiวkl๓ຖ໐p๑rŞtนงຟxฯຊ",
+    
+    "Anchor Style":
+    "Ⱥβ↻ᎠƐƑƓǶįلҠꝈⱮហටφҨའϚͲԱỼచჯӋɀąҍçժҽƒցհìʝҟӀʍղօքզɾʂէմѵա×վՀ",
+    
+    "Hourglass":
+    "A♭꒞꒯㉹f꒸♬ﭐ꒻kLѪո♡рզrՖ†ﮠvա꒾վՀa♭꒞꒯㉹f꒸♬ﭐ꒻kLѪո♡рզrՖ†ﮠvա꒾վՀ",
+    
+    "Orthadox":
+    "@฿ςÐΞךּĝĦ¡∂қĺmמθÞΘя§‡טעשּׂЖצּζ@฿ςÐΞךּĝĦ¡∂қĺmמθÞΘя§‡טעשּׂЖצּζ",
+    
+};
+
+// Populate dropdown
+const select = document.getElementById("fontSelect");
+for (let name in fonts) {
+    let option = document.createElement("option");
+    option.value = name;
+    option.textContent = name;
+    select.appendChild(option);
+}
+
+// Encoding function
+function encodeText() {
+    const input = document.getElementById("inputText").value;
+    const fontName = document.getElementById("fontSelect").value;
+    const font = fonts[fontName];
+
+    let output = "";
+
+    for (let char of input) {
+        let index = base.indexOf(char);
+
+        if (index !== -1 && font[index]) {
+            output += font[index];
+        } else {
+            output += char;
+        }
+    }
+
+    document.getElementById("outputText").value = output;
+}
+
+// Live typing + font switching
+document.getElementById("inputText").addEventListener("input", encodeText);
+document.getElementById("fontSelect").addEventListener("change", encodeText);
+</script>
+
+</body>
+</html>
